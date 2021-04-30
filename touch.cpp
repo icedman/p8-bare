@@ -9,10 +9,10 @@ uint8_t touch_dev_addr = 0x15;
 
 touch_data_t touch_data;
 
-static int touchDebounce = 0;
 static bool touchDown = false;
 static long touchDownTime = 0;
-static int previousGesture = TOUCH_NO_GESTURE;
+static int touchGesture = TOUCH_NO_GESTURE;
+static long lastGestureConsumed = 0;
 
 void initTouch() {
     if (!touch_inited) {
@@ -31,6 +31,8 @@ void initTouch() {
         delay(5);
         userI2CRead(touch_dev_addr, 0xA7, touch_data.versionInfo, 3);
     }
+
+    clearTouch();
 }
 
 bool touch_sleep = false;
@@ -44,49 +46,47 @@ void touchEnable(bool state) {
         byte standby_value = 0x03;
         userI2CWrite(touch_dev_addr, 0xA5, &standby_value, 1);
     }
+
+    clearTouch();
 }
 
 void readTouch()
 {
     if (touch_sleep) return;
 
-    bool prevTouch = touchDown;
-    touchDown = getInterrupts()->touch;
+    if (getInterrupts()->touch) {
+        readTouchData();
+        touchDownTime = millis();
+        if (!touchDown && (touch_data.x != touch_data.lastX ||
+            touch_data.y != touch_data.lastY)) {
+            addEvent(E_TOUCH_PRESSED, touch_data.x, touch_data.y);
+            touchDown = true;
+            touchGesture = TOUCH_NO_GESTURE;
+        }
+        getInterrupts()->touch = 0;
+    }
 
-    touch_data_t *td = 0;
-    if (touchDown) {
-        readTouchXY();
-        td = getTouch();
-        if (previousGesture != td->gesture) {
-            previousGesture = td->gesture;
-            addEvent(E_TOUCH_GESTURE, td->x, td->y, td->gesture);
+    long touchTime = millis() - touchDownTime;
+    if (touchDown && touchTime > 250) {
+        addEvent(E_TOUCH_RELEASED, touch_data.x, touch_data.y);
+        touchDown = false;
+        touchGesture = TOUCH_NO_GESTURE;
+    }
+
+    if (touchGesture != touch_data.gesture) {
+        if (millis() - lastGestureConsumed > 1000) {
+            addEvent(E_TOUCH_GESTURE, touch_data.x, touch_data.y, touch_data.gesture);
+            touch_data.gesture = TOUCH_NO_GESTURE;
+            touchGesture = touch_data.gesture;
+            lastGestureConsumed = millis();
         }
     }
 
-    if (prevTouch != touchDown && touchDown) {
-        if (touchDebounce == 0) {
-            addEvent(E_TOUCH_PRESSED, td->x, td->y);
-            touchDownTime = millis();
-        }
-        touchDebounce = 4;
-    } else {
+    touch_data.down = touchDown;
 
-        if (touchDownTime > 0 && millis() - touchDownTime > 5000) {
-            addEvent(E_TOUCH_LONG_PRESS, td->x, td->y);
-            touchDownTime = 0;
-        }
-    }
-
-    if (touchDebounce > 0) {
-        if (touchDebounce-- < 2) {
-            addEvent(E_TOUCH_RELEASED, td->x, td->y);
-            touchDebounce = 0;
-            previousGesture = TOUCH_NO_GESTURE;
-        }
-    }
 }
 
-void readTouchXY() {
+void readTouchData() {
     byte data_raw[8];
     userI2CRead(touch_dev_addr, 0x01, data_raw, 6);
 
@@ -96,14 +96,24 @@ void readTouchXY() {
     touch_data.x = data_raw[3];
     touch_data.y = data_raw[5];
 
-    if (touch_data.x == 255 && touch_data.y == 255) {
-        touch_data.x = touch_data.last_x;
-        touch_data.y = touch_data.last_y;
-    } else {
-        touch_data.last_x = touch_data.x;
-        touch_data.last_y = touch_data.y;
+    if (touch_data.gesture != TOUCH_NO_GESTURE) {
+        touch_data.lastGesture = touch_data.gesture;
     }
+    if (touch_data.x != 255 || touch_data.y != 255) {
+        touch_data.lastX = touch_data.x;
+        touch_data.lastY = touch_data.y;
+    } else {
+        touch_data.x = touch_data.lastX;
+        touch_data.y = touch_data.lastY;
+    }
+}
 
+void clearTouch()
+{
+    touch_data.down = false;
+    touchDown = false;
+    touchGesture = TOUCH_NO_GESTURE;
+    touchDownTime = 0;
 }
 
 touch_data_t* getTouch()

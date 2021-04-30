@@ -11,6 +11,5 @@ typedef struct {
 } interrupt;
 
 void initInterrupt();
-void readInterrupts();
 void clearInterrupts();
 interrupt* getInterrupts();

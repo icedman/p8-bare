@@ -19,15 +19,18 @@ typedef struct {
     byte event;
     int x;
     int y;
-    int last_x;
-    int last_y;
     uint8_t version15;
     uint8_t versionInfo[3];
+    bool down;
+    byte lastGesture;
+    int lastX;
+    int lastY;
 } touch_data_t;
 
 void initTouch();
 void touchEnable(bool enable);
 void readTouch();
-void readTouchXY();
+void readTouchData();
+void clearTouch();
 touch_data_t* getTouch();
 

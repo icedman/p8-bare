@@ -2,7 +2,10 @@
 #include <lp_timer.h>
 
 #include "pinout.h"
+#include "pedometer.h"
 #include "watchdog.h"
+#include "accl.h"
+#include "heart.h"
 #include "ble.h"
 #include "fastSpi.h"
 #include "i2c.h"
@@ -24,9 +27,10 @@ lp_timer drawTimer;
 lp_timer eventsTimer;
 lp_timer checksTimer;
 
+static bool scheduleDraw = false;
 const unsigned long DRAW_DELAY_TIME = 250;
 const unsigned long EVENTS_DELAY_TIME = 100;
-const unsigned long CHECKS_DELAY_TIME = 2500;
+const unsigned long CHECKS_DELAY_TIME = 2000;
 
 void handleDraw()
 {
@@ -34,38 +38,51 @@ void handleDraw()
         return;
     }
 
-    drawApp();
+    if (scheduleDraw) {
+        drawApp();
+        scheduleDraw = false;
+    }
 }
 
 void handleEvents()
 {
-    feedBLE();
-    readInterrupts();
+    updateSleep();
 
-    if (!isSleeping()) {
-        updateSleep();
-    } else {
-        interrupt* ints = getInterrupts();
-        if (ints->button + ints->touch > 0) {
-            wakeUp();
-        } else{
-            return;
-        }
+    if (shouldSleep()) {
+        drawTimer.stop();
+        goToSleep();
+        return;
     }
 
-    feedWatchdog();
     readIO();
     readTouch();
-
     updateApp();
 
     clearEvents();
     clearInterrupts();
+
+    // scheduleDraw = true;
+
+    // if (!drawTimer.isRunning()) {
+    //     drawTimer.startTimer(DRAW_DELAY_TIME, handleDraw);
+    // }
 }
 
 void handleChecks()
 {
     readBattery();
+}
+
+void handleSleep()
+{
+    sleepWait();
+
+    // waiting only to wake
+    interrupt* ints = getInterrupts();
+    if (ints->button + ints->touch + getTouch()->down > 0) {
+        wakeUp();
+        clearInterrupts();
+    }
 }
 
 void setup()
@@ -87,7 +104,6 @@ void setup()
     setBacklight(3);    
     displayEnable(true);
 
-    // show something
     clearDisplay();
     asteroidDrawString(20, 20, "booting...", 1, COLOUR_WHITE);
 
@@ -98,6 +114,9 @@ void setup()
     initSleep();
     initInterrupt();
     initBLE();
+    // initHeart();
+    // initAccel();
+    // initPedometer();
 
     initApp();
     initWatchface();
@@ -112,5 +131,17 @@ void setup()
 
 void loop()
 {
-    sleep();
+    feedBLE();
+
+    if (isSleeping()) {
+        handleSleep();
+    } else {
+        // readTouch();
+        // readAccel();
+        // readPedometer();
+        // sleep();
+        handleEvents();
+        handleChecks();
+        drawApp();
+    }
 }

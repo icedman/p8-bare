@@ -13,6 +13,10 @@ void initEvents()
 
 void addEvent(int event, int x, int y, int z)
 {
+    if (event_idx > 0 && events[event_idx-1].e == event) {
+        return;
+    }
+
     for(int i=0; i<MAX_EVENTS; i++) {
         if (events[event_idx].e == 0) {
             events[event_idx].e = event;

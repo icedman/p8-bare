@@ -24,6 +24,9 @@ typedef struct {
 #define E_STARTUP               21
 #define E_WAKE                  22
 
+#define E_BLE_CONNECTED         31
+#define E_BLE_DISCONNECTED      32
+
 void initEvents();
 void addEvent(int e, int x = 0, int y = 0, int z = 0);
 void clearEvents();

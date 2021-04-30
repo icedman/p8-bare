@@ -10,14 +10,14 @@ void drawApp();
 void homeApp();
 void previousApp();
 void nextApp();
-
+void showNotice(char *notice);
 
 class App {
 public:
 
     App() : hash(0) {}
 
-    virtual void onMount() { hash = 0; clearDisplay(); }
+    virtual void onMount();
     virtual void onWake() { hash = 0; }
     virtual void onUnmount() {}
     virtual void onUpdate() {}

@@ -12,6 +12,7 @@
 #include "sleep.h"
 #include "time.h"
 #include "battery.h"
+#include "events.h"
 #include "io.h"
 #include "backlight.h"
 #include "bootloader.h"
@@ -23,15 +24,13 @@ BLEService                      main_service     = BLEService("190A");
 BLECharacteristic   TXchar        = BLECharacteristic("0002", BLENotify, 20);
 BLECharacteristic   RXchar        = BLECharacteristic("0001", BLEWriteWithoutResponse, 20);
 
-bool vars_ble_connected = false;
+static bool ble_connected = false;
 
 void ble_ConnectHandler(BLECentral& central);
 void ble_DisconnectHandler(BLECentral& central);
 void ble_DisconnectHandler(BLECentral& central);
 void ble_written(BLECentral& central, BLECharacteristic& characteristic);
 void ble_write(String Command);
-bool get_vars_ble_connected();
-void set_vars_ble_connected(bool state);
 void filterCmd(String Command);
 
 void initBLE() {
@@ -55,19 +54,19 @@ void feedBLE() {
 
 bool isBLEConnected()
 {
-    return vars_ble_connected;
+    return ble_connected;
 }
 
 void ble_ConnectHandler(BLECentral& central) {
-    // sleep_up(WAKEUP_BLECONNECTED);
+    ble_connected = true;
     wakeUp();
-    set_vars_ble_connected(true);
+    addEvent(E_BLE_CONNECTED);
 }
 
 void ble_DisconnectHandler(BLECentral& central) {
-    // sleep_up(WAKEUP_BLEDISCONNECTED);
-    goToSleep();
-    set_vars_ble_connected(false);
+    ble_connected = false;
+    wakeUp();
+    addEvent(E_BLE_DISCONNECTED);
 }
 
 String answer = "";
@@ -99,14 +98,6 @@ void ble_write(String Command) {
         TXchar.setValue(TempSendCmd);
         Command = Command.substring(20);
     }
-}
-
-bool get_vars_ble_connected() {
-    return vars_ble_connected;
-}
-
-void set_vars_ble_connected(bool state) {
-    vars_ble_connected = state;
 }
 
 void filterCmd(String Command) {

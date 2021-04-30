@@ -1,5 +1,10 @@
 #include "interrupt.h"
 #include "pinout.h"
+#include "touch.h"
+
+#include <nrf_nvic.h>//interrupt controller stuff
+#include <nrf_sdm.h>
+#include <nrf_soc.h>
 
 static bool interrupt_inited = false;
 volatile bool charged_int;
@@ -43,16 +48,14 @@ void GPIOTE_IRQHandler()
             NRF_GPIO->PIN_CNF[TP_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
             NRF_GPIO->PIN_CNF[TP_INT] |= ((interrupts.touch ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
         // }
-            
-        /*
+          
         bool accl_pin = digitalRead(BMA421_INT);
-        if (accl_pin != last_accl_state) {
-          last_accl_state = accl_pin;
+        // if (accl_pin != last_accl_state) {
+          interrupts.accel = accl_pin;
           NRF_GPIO->PIN_CNF[BMA421_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
-          NRF_GPIO->PIN_CNF[BMA421_INT] |= ((last_accl_state ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
-          if (last_accl_state == false)set_accl_interrupt();
-        }
-        */
+          NRF_GPIO->PIN_CNF[BMA421_INT] |= ((interrupts.accel ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
+          // if (interrupts.accel == false)set_accl_interrupt();
+        // }
     }
 
     (void)NRF_GPIOTE->EVENTS_PORT;
@@ -93,9 +96,9 @@ void initInterrupt()
     interrupts.touch = digitalRead(TP_INT);
     NRF_GPIO->PIN_CNF[TP_INT] |= ((uint32_t)  (interrupts.touch ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
 
-//  pinMode(BMA421_INT, INPUT);
-//  last_accl_state = digitalRead(BMA421_INT);
-//  NRF_GPIO->PIN_CNF[BMA421_INT] |= ((uint32_t)  (last_accl_state ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
+    pinMode(BMA421_INT, INPUT);
+    interrupts.accel = digitalRead(BMA421_INT);
+    NRF_GPIO->PIN_CNF[BMA421_INT] |= ((uint32_t)  (interrupts.accel ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
 
     interrupt_inited = true;
 }
@@ -105,12 +108,13 @@ interrupt* getInterrupts()
     return &interrupts;
 }
 
-void readInterrupts()
-{
-}
-
 void clearInterrupts()
 {
     interrupts.touch = 0;
+    interrupts.accel = 0;
     interrupts.button = 0;
+
+    if (!getTouch()->down) {
+        sd_nvic_ClearPendingIRQ(SD_EVT_IRQn);
+    }
 }

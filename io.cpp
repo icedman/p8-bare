@@ -69,3 +69,12 @@ bool getButton() {
     bool button = digitalRead(PUSH_BUTTON_IN);
     return button;
 }
+
+void ledEnable(bool state)
+{
+    if (state) {
+        digitalWrite(STATUS_LED, HIGH);
+    } else {
+        digitalWrite(STATUS_LED, LOW);
+    }
+}

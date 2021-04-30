@@ -11,3 +11,4 @@
 void initIO();
 void readIO();
 bool getButton();
+void ledEnable(bool state);

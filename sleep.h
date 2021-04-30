@@ -11,5 +11,7 @@ void sleepWait();
 void caffeinate();
 bool isSleeping();
 void updateSleep();
+bool shouldSleep();
+bool onTwoSeconds();
 
 void disableHardware();

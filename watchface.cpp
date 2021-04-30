@@ -21,6 +21,53 @@
 static bool hasBg = false;
 static uint8_t *currentFace = 0;
 
+static watchface_gfx_spr_t watchface_spr[64];
+static watchface_gfx_t watchface_gfx[] = {
+  { 0x10, "MonthName" },
+  { 0x11, "Month" },
+  { 0x12, "YearLeft" },
+  { 0x30, "Day" },
+  { 0x60, "DayOfWeek" },
+  { 0x61, "DayOfWeekCZ" },
+  { 0x40, "HoursDigit1" },
+  { 0x41, "HoursDigit2" },
+  { 0x43, "MinutesDigit1" },
+  { 0x44, "MinutesDigit2" },
+  { 0x45, "PMIcon" },
+  { 0x46, "AMIcon" },
+  { 0x70, "StepsProgress" },
+  { 0x71, "StepsIcon" },
+  { 0x72, "StepsLeft", 0 },
+  { 0x73, "StepsCentered", 1 },
+  { 0x74, "StepsRight", 2 },
+  { 0x76, "StepsGoal" },
+  { 0x80, "HeartProgress" },
+  { 0x81, "HeartIcon" },
+  { 0x82, "HeartLeft", 0 },
+  { 0x83, "HeartCentered", 1 },
+  { 0x84, "HeartRight", 2 },
+  { 0x90, "CaloriesProgress" },
+  { 0x91, "CaloriesIcon" },
+  { 0x92, "CaloriesLeft", 0 },
+  { 0x93, "CaloriesCentered", 1 },
+  { 0x94, "CaloriesRight", 2 },
+  { 0xa0, "DistanceProgress" },
+  { 0xa1, "DistanceIcon" },
+  { 0xa2, "DistanceLeft", 0 },
+  { 0xa3, "DistanceCentered", 1 },
+  { 0xa4, "DistanceRight", 2 },
+  { 0xb1, "SleepIcon" },
+  { 0xb2, "SleepHours" },
+  { 0xb4, "SleepMinutes" },
+  { 0xd1, "BatteryIcon" },
+  { 0xd2, "BatPercentLeft", 0 },
+  { 0xd3, "BatPercentCentered", 1 },
+  { 0xd4, "BatPercentRight", 2 },
+  { 0xc0, "BLEIcon" },
+  { 0xf0, "Icon" },
+  { 0x00, "" }
+};
+
 void initWatchface(void)
 {
     currentFace = (uint8_t*)face;
@@ -116,27 +163,27 @@ void draw_sprite(watchface_gfx_spr_t *s, int x, int y, int w, int h, bool deferr
     endSprite();
 }
 
-static uint32_t prevHash  = 0;
-void drawWatchface(void)
+int drawWatchface(int hs)
 {
     time_data_t tm = getTime();
     uint8_t dofw = getDayOfWeek();
-
-    int conn = isBLEConnected();
+    bool conn = isBLEConnected();
     int bat = getBatteryPercent();
-    int ii = 0;
-    char tmp[32];
-    tmp[ii++] = tm.hr;
-    tmp[ii++] = tm.min;
-    tmp[ii++] = dofw;
-    tmp[ii++] = conn;
-    tmp[ii++] = bat;
-    tmp[ii++] = 0;
 
-    // uint32_t hs = dataHash(tmp);
-    // if (hs == prevHash) return;
-    // prevHash = hs;
-  
+    char tmp[32];
+    int idx = 0;
+    tmp[idx++] = tm.hr;
+    tmp[idx++] = tm.min;
+    tmp[idx++] = dofw;
+    tmp[idx++] = conn;
+    tmp[idx++] = bat;
+    tmp[idx++] = 0;
+
+    int hash = dataHash(tmp);
+    if (hash > 0 && hash == hs) {
+      return hash;
+    }
+ 
     // background
     if (hasBg) {
         for (int i = 0; i < 10; i++) {
@@ -204,16 +251,13 @@ void drawWatchface(void)
             // id = g->sprite + (10 * (bat / 100));
             break;
         case 0xd1: // battery icon
-            id = g->sprite;
+            // id = g->sprite;
             // id = g->sprite + (bat / 100);
             break;
         case 0xc0:
             if (!conn) {
                 id = 0;
-                coord pos;
-                pos.x = g->x;
-                pos.y = g->y;
-                drawFilledRect(pos, g->w, g->h, 0);
+                drawFilledRect({g->x, g->y}, g->w, g->h, 0);
 
             }
             break;
@@ -222,40 +266,22 @@ void drawWatchface(void)
         if (id == 0)
             continue;
 
-        if (g->type == 0xd1 && bat < 90) {
-            draw_sprite(&watchface_spr[id], g->x, g->y, g->w, g->h);
-            int p = 2;
-            int ww = (g->w - 4) * bat / 100;
-            coord pos;
-            pos.x = ww + p;
-            pos.y = p;
-            ww = g->w - ww - (p*2) - 1;
-            if (ww > 4) {
-                int hh = g->h-(p*2);
-                int clr = 0;
-                drawFilledRect(pos, ww, hh, 0);
-
-                // uint8_t* buffer = (uint8_t*)getLCDBuffer();
-                // for(int j=0; j<hh; j++) {
-                //     int sy = j * g->w + p;
-                //     for(int k=0; k<ww; k++) {
-                //         int sx = ww + p + k + 3;
-                //         int idx = (sy + sx) * 2;
-                //         buffer[idx] = (clr >> 8) & 0xFF;
-                //         buffer[idx + 1] = clr & 0xFF;  
-                //     }
-                // }
-            }
-            // endSprite();
-            return;
-        }
-
         draw_sprite(&watchface_spr[id], g->x, g->y, g->w, g->h);
+
+        if (g->type == 0xd1 && bat < 95) {
+          int w = ((g->w - 5) * (100 - bat) / 100);
+          int x = g->x + g->w - w - 3;
+          drawFilledRect({x, g->y+2}, w, g->h-4, 0);
+        }
     }
 
+    return hash;
 }
 
-void clearWatchface()
-{
-    prevHash = 0;
+watchface_gfx_spr_t* getWatchSprites() {
+    return watchface_spr;
+}
+
+watchface_gfx_t* getWatchEntities() {
+    return watchface_gfx;
 }
