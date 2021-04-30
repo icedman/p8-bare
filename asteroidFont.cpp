@@ -88,7 +88,7 @@ void initAsteroids() {
     asteroids_font['Z' - 0x20] = { P(0,12), P(8,12), P(0,0), P(8,0), FONT_UP, P(2,6), P(6,6), FONT_LAST };
 }
 
-int asteroidDrawChar(float x, float y, char c, float size, int clr, int bg, bool extentsOnly) { 
+int asteroidDrawChar(float x, float y, char c, float size, int clr, int bg, bool extentsOnly) {
 
     if (c >= 'a' && c <= 'z') {
         c += 'A' - 'a';
@@ -148,11 +148,11 @@ int asteroidDrawChar(float x, float y, char c, float size, int clr, int bg, bool
             if (!extentsOnly) {
                 drawLine(
                     &buffer,
-                  (int)startPosition.x - x,
-                  (int)startPosition.y - y + 2,
-                  (int)nextPosition.x - x,
-                  (int)nextPosition.y - y + 2,
-                  clr
+                    (int)startPosition.x - x,
+                    (int)startPosition.y - y + 2,
+                    (int)nextPosition.x - x,
+                    (int)nextPosition.y - y + 2,
+                    clr
                 );
             }
 

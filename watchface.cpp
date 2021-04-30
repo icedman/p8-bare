@@ -23,49 +23,49 @@ static uint8_t *currentFace = 0;
 
 static watchface_gfx_spr_t watchface_spr[64];
 static watchface_gfx_t watchface_gfx[] = {
-  { 0x10, "MonthName" },
-  { 0x11, "Month" },
-  { 0x12, "YearLeft" },
-  { 0x30, "Day" },
-  { 0x60, "DayOfWeek" },
-  { 0x61, "DayOfWeekCZ" },
-  { 0x40, "HoursDigit1" },
-  { 0x41, "HoursDigit2" },
-  { 0x43, "MinutesDigit1" },
-  { 0x44, "MinutesDigit2" },
-  { 0x45, "PMIcon" },
-  { 0x46, "AMIcon" },
-  { 0x70, "StepsProgress" },
-  { 0x71, "StepsIcon" },
-  { 0x72, "StepsLeft", 0 },
-  { 0x73, "StepsCentered", 1 },
-  { 0x74, "StepsRight", 2 },
-  { 0x76, "StepsGoal" },
-  { 0x80, "HeartProgress" },
-  { 0x81, "HeartIcon" },
-  { 0x82, "HeartLeft", 0 },
-  { 0x83, "HeartCentered", 1 },
-  { 0x84, "HeartRight", 2 },
-  { 0x90, "CaloriesProgress" },
-  { 0x91, "CaloriesIcon" },
-  { 0x92, "CaloriesLeft", 0 },
-  { 0x93, "CaloriesCentered", 1 },
-  { 0x94, "CaloriesRight", 2 },
-  { 0xa0, "DistanceProgress" },
-  { 0xa1, "DistanceIcon" },
-  { 0xa2, "DistanceLeft", 0 },
-  { 0xa3, "DistanceCentered", 1 },
-  { 0xa4, "DistanceRight", 2 },
-  { 0xb1, "SleepIcon" },
-  { 0xb2, "SleepHours" },
-  { 0xb4, "SleepMinutes" },
-  { 0xd1, "BatteryIcon" },
-  { 0xd2, "BatPercentLeft", 0 },
-  { 0xd3, "BatPercentCentered", 1 },
-  { 0xd4, "BatPercentRight", 2 },
-  { 0xc0, "BLEIcon" },
-  { 0xf0, "Icon" },
-  { 0x00, "" }
+    { 0x10, "MonthName" },
+    { 0x11, "Month" },
+    { 0x12, "YearLeft" },
+    { 0x30, "Day" },
+    { 0x60, "DayOfWeek" },
+    { 0x61, "DayOfWeekCZ" },
+    { 0x40, "HoursDigit1" },
+    { 0x41, "HoursDigit2" },
+    { 0x43, "MinutesDigit1" },
+    { 0x44, "MinutesDigit2" },
+    { 0x45, "PMIcon" },
+    { 0x46, "AMIcon" },
+    { 0x70, "StepsProgress" },
+    { 0x71, "StepsIcon" },
+    { 0x72, "StepsLeft", 0 },
+    { 0x73, "StepsCentered", 1 },
+    { 0x74, "StepsRight", 2 },
+    { 0x76, "StepsGoal" },
+    { 0x80, "HeartProgress" },
+    { 0x81, "HeartIcon" },
+    { 0x82, "HeartLeft", 0 },
+    { 0x83, "HeartCentered", 1 },
+    { 0x84, "HeartRight", 2 },
+    { 0x90, "CaloriesProgress" },
+    { 0x91, "CaloriesIcon" },
+    { 0x92, "CaloriesLeft", 0 },
+    { 0x93, "CaloriesCentered", 1 },
+    { 0x94, "CaloriesRight", 2 },
+    { 0xa0, "DistanceProgress" },
+    { 0xa1, "DistanceIcon" },
+    { 0xa2, "DistanceLeft", 0 },
+    { 0xa3, "DistanceCentered", 1 },
+    { 0xa4, "DistanceRight", 2 },
+    { 0xb1, "SleepIcon" },
+    { 0xb2, "SleepHours" },
+    { 0xb4, "SleepMinutes" },
+    { 0xd1, "BatteryIcon" },
+    { 0xd2, "BatPercentLeft", 0 },
+    { 0xd3, "BatPercentCentered", 1 },
+    { 0xd4, "BatPercentRight", 2 },
+    { 0xc0, "BLEIcon" },
+    { 0xf0, "Icon" },
+    { 0x00, "" }
 };
 
 void initWatchface(void)
@@ -152,7 +152,7 @@ void draw_sprite(watchface_gfx_spr_t *s, int x, int y, int w, int h, bool deferr
         for(int j=0; j<sz; j++) {
             if (ii >= LCD_BUFFER_SIZE) break;
             buffer[ii++] = (pixel >> 8) & 0xFF;  //Post increment meaning that it first writes to position i, then increments i
-            buffer[ii++] = pixel & 0xFF;  
+            buffer[ii++] = pixel & 0xFF;
         }
     }
 
@@ -181,9 +181,9 @@ int drawWatchface(int hs)
 
     int hash = dataHash(tmp);
     if (hash > 0 && hash == hs) {
-      return hash;
+        return hash;
     }
- 
+
     // background
     if (hasBg) {
         for (int i = 0; i < 10; i++) {
@@ -191,7 +191,7 @@ int drawWatchface(int hs)
         }
     }
 
-    for(int j=0; ;j++) {
+    for(int j=0; ; j++) {
         watchface_gfx_t *g = &watchface_gfx[j];
         if (!g->type) break;
         if (!g->sprite) continue;
@@ -240,7 +240,7 @@ int drawWatchface(int hs)
             draw_sprite(&watchface_spr[id + yx], xx + (g->w + 1)*3, g->y, g->w, g->h);
             draw_sprite(&watchface_spr[id + yl], xx + (g->w + 1)*4, g->y, g->w, g->h);
         }
-            continue;
+        continue;
 
         case 0x60:
         case 0x61:
@@ -269,9 +269,9 @@ int drawWatchface(int hs)
         draw_sprite(&watchface_spr[id], g->x, g->y, g->w, g->h);
 
         if (g->type == 0xd1 && bat < 95) {
-          int w = ((g->w - 5) * (100 - bat) / 100);
-          int x = g->x + g->w - w - 3;
-          drawFilledRect({x, g->y+2}, w, g->h-4, 0);
+            int w = ((g->w - 5) * (100 - bat) / 100);
+            int x = g->x + g->w - w - 3;
+            drawFilledRect({x, g->y+2}, w, g->h-4, 0);
         }
     }
 

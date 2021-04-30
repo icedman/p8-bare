@@ -24,9 +24,9 @@ int time_since_last_step;
 
 #define NORMALIZE(x) ((float)x);
 
-static float lowpassFilter(float mag){
+static float lowpassFilter(float mag) {
     float sample_result;
-    
+
     // Low-pass filter: average the last FILTER_SIZE_PEDO magnitude readings
     filter_sum -= filter_buf[filter_index];   // Subtract old value from sum
     filter_buf[filter_index] = mag;           // Store new value in buffer
@@ -37,7 +37,7 @@ static float lowpassFilter(float mag){
         filter_index = 0;
     }
     sample_result = filter_sum / FILTER_SIZE_PEDO; // Average buffer value
-    
+
     return sample_result;
 }
 
@@ -56,7 +56,7 @@ void initPedometer()
 {
     float xaccl, yaccl, zaccl;
     int x, y, z;
-    
+
     // Read initial accelerometer state and assign to various things to start
     accl_data_struct accl_data = getAccelData();
 
@@ -117,7 +117,7 @@ void readPedometer()
             window_max = sample_result;
         }
     }
-    
+
     // Watch for sufficiently large changes in accelerometer readings...
     sample_old = sample_new;
     if (abs(sample_result - sample_old) > precision)

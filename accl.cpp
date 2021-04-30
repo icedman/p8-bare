@@ -154,7 +154,7 @@ void initAccel()
 void readAccel()
 {
     // if (getInterrupts()->accel) {
-        update_accl_data();
+    update_accl_data();
     // }
 }
 

@@ -297,7 +297,7 @@ void beginSprite(int x, int y, int w, int h, bool clear, int bg)
             lcdBuffer[ii++] = (bg >> 8) & 0xFF;
             lcdBuffer[ii++] = bg & 0xFF;
         }
-        
+
     }
 
     spiCommand(0x2C);  //Memory write
@@ -324,10 +324,10 @@ void padStringWithSpaces(char *tmp, int c) {
 
 uint32_t dataHash(const char* s)
 {
-   uint32_t h = FIRSTH;
-   while (*s) {
-     h = (h * A) ^ (s[0] * B);
-     s++;
-   }
-   return h; // or return h % C;
+    uint32_t h = FIRSTH;
+    while (*s) {
+        h = (h * A) ^ (s[0] * B);
+        s++;
+    }
+    return h; // or return h % C;
 }

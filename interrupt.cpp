@@ -19,7 +19,7 @@ static interrupt interrupts;
 extern "C" {
 #endif
 void GPIOTE_IRQHandler()
-{    
+{
     if ((NRF_GPIOTE->EVENTS_PORT != 0))
     {
         NRF_GPIOTE->EVENTS_PORT = 0;
@@ -44,17 +44,17 @@ void GPIOTE_IRQHandler()
         }
         bool touch_pin = digitalRead(TP_INT);
         // if (touch_pin != interrupts.touch) {
-            interrupts.touch = touch_pin;
-            NRF_GPIO->PIN_CNF[TP_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
-            NRF_GPIO->PIN_CNF[TP_INT] |= ((interrupts.touch ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
+        interrupts.touch = touch_pin;
+        NRF_GPIO->PIN_CNF[TP_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
+        NRF_GPIO->PIN_CNF[TP_INT] |= ((interrupts.touch ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
         // }
-          
+
         bool accl_pin = digitalRead(BMA421_INT);
         // if (accl_pin != last_accl_state) {
-          interrupts.accel = accl_pin;
-          NRF_GPIO->PIN_CNF[BMA421_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
-          NRF_GPIO->PIN_CNF[BMA421_INT] |= ((interrupts.accel ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
-          // if (interrupts.accel == false)set_accl_interrupt();
+        interrupts.accel = accl_pin;
+        NRF_GPIO->PIN_CNF[BMA421_INT] &= ~GPIO_PIN_CNF_SENSE_Msk;
+        NRF_GPIO->PIN_CNF[BMA421_INT] |= ((interrupts.accel ? GPIO_PIN_CNF_SENSE_Low : GPIO_PIN_CNF_SENSE_High) << GPIO_PIN_CNF_SENSE_Pos);
+        // if (interrupts.accel == false)set_accl_interrupt();
         // }
     }
 

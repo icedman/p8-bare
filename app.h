@@ -18,12 +18,16 @@ public:
     App() : hash(0) {}
 
     virtual void onMount();
-    virtual void onWake() { hash = 0; }
+    virtual void onWake() {
+        hash = 0;
+    }
     virtual void onUnmount() {}
     virtual void onUpdate() {}
     virtual void onDraw() {}
     virtual void onButtonDown() {}
-    virtual void onButtonUp() { homeApp(); }
+    virtual void onButtonUp() {
+        homeApp();
+    }
     virtual void onTouchDown() {}
     virtual void onTouchUp() {}
     virtual void onTouchGesture(int gesture);

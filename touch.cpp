@@ -58,7 +58,7 @@ void readTouch()
         readTouchData();
         touchDownTime = millis();
         if (!touchDown && (touch_data.x != touch_data.lastX ||
-            touch_data.y != touch_data.lastY)) {
+                           touch_data.y != touch_data.lastY)) {
             addEvent(E_TOUCH_PRESSED, touch_data.x, touch_data.y);
             touchDown = true;
             touchGesture = TOUCH_NO_GESTURE;

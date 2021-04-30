@@ -24,46 +24,46 @@ void App::update()
     for(int i=0; i<MAX_EVENTS; i++) {
         if (evts[i].e == 0) break;
         switch (evts[i].e) {
-            // case E_INTERRUPT_CHARGED: {
-            //     showNotice("charged...");
-            //     break;
-            // }
-            // case E_INTERRUPT_CHARGING: {
-            //     showNotice("charging...");
-            //     break;
-            // }
-            case E_BUTTON_PRESSED: {
-                onButtonDown();
-                break;
-            }
-            case E_BUTTON_RELEASED: {
-                onButtonUp();
-                break;
-            }
-            case E_TOUCH_PRESSED: {
-                onTouchDown();
-                break;
-            }
-            case E_TOUCH_RELEASED: {
-                onTouchUp();
-                break;
-            }
-            case E_TOUCH_GESTURE: {
-                onTouchGesture(evts[i].z);
-                break;
-            }
-            case E_BUTTON_LONG_PRESS: {
-                systemReboot();
-                break;
-            }
-            case E_STARTUP: {
-                onMount();
-                break;
-            }
-            case E_WAKE: {
-                onWake();
-                break;
-            }
+        // case E_INTERRUPT_CHARGED: {
+        //     showNotice("charged...");
+        //     break;
+        // }
+        // case E_INTERRUPT_CHARGING: {
+        //     showNotice("charging...");
+        //     break;
+        // }
+        case E_BUTTON_PRESSED: {
+            onButtonDown();
+            break;
+        }
+        case E_BUTTON_RELEASED: {
+            onButtonUp();
+            break;
+        }
+        case E_TOUCH_PRESSED: {
+            onTouchDown();
+            break;
+        }
+        case E_TOUCH_RELEASED: {
+            onTouchUp();
+            break;
+        }
+        case E_TOUCH_GESTURE: {
+            onTouchGesture(evts[i].z);
+            break;
+        }
+        case E_BUTTON_LONG_PRESS: {
+            systemReboot();
+            break;
+        }
+        case E_STARTUP: {
+            onMount();
+            break;
+        }
+        case E_WAKE: {
+            onWake();
+            break;
+        }
         }
     }
 
@@ -86,11 +86,11 @@ void App::onMount()
 void App::onTouchGesture(int gesture)
 {
     switch(gesture) {
-        case TOUCH_SLIDE_UP:
-            nextApp();
+    case TOUCH_SLIDE_UP:
+        nextApp();
         break;
-        case TOUCH_SLIDE_DOWN:
-            previousApp();
+    case TOUCH_SLIDE_DOWN:
+        previousApp();
         break;
     }
 }
@@ -140,7 +140,7 @@ public:
         int y = 24;
         // readTouchData();
 
-        touch_data_t *td = getTouch(); 
+        touch_data_t *td = getTouch();
         int bat = getBatteryPercent();
         int heart = 0;
         int steps = 0;
@@ -168,9 +168,9 @@ public:
         y += 24;
 
         sprintf(tmp, "touch:v%d.%d.%d",
-            td->versionInfo[0],
-            td->versionInfo[1],
-            td->versionInfo[2]);
+                td->versionInfo[0],
+                td->versionInfo[1],
+                td->versionInfo[2]);
         padStringWithSpaces(tmp, 4);
         asteroidDrawString(x, y, tmp, 1, COLOUR_WHITE, COLOUR_BLACK, false);
         y += 24;
@@ -207,7 +207,7 @@ public:
         // asteroidDrawString(x, y, tmp, 1, COLOUR_WHITE, COLOUR_BLACK, false);
         // y += 24;
 
-        for(int j=0; ;j++) {
+        for(int j=0; ; j++) {
             watchface_gfx_t *g = &getWatchEntities()[j];
             if (!g->type) break;
             if (!g->sprite) continue;
@@ -249,7 +249,7 @@ class HeartApp : public App
 public:
     void onDraw() {
         updateHeart();
-        
+
         char tmp[32];
         int x = 24;
         int y = 24;

@@ -31,7 +31,7 @@ typedef struct {
 
 typedef long fixed;
 
-#define LCD_BUFFER_SIZE 16000 
+#define LCD_BUFFER_SIZE 16000
 
 #define FPMUL(x,y)      ((((x)>>6)*((y)>>6))>>4)    // multiply fixed by fixed. returns fixed
 #define FPMULH(x,y)     ((((x)>>2)*((y)>>2))>>12)   // higher precision
